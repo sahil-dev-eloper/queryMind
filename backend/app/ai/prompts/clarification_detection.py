@@ -1,0 +1,1 @@
+CLARIFICATION_DETECTION_PROMPT = """Identify only material ambiguities in the user's analytics intent. Use supplied schema and return structured fields. Never invent schema objects or generate SQL."""
