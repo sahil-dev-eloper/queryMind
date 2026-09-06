@@ -10,3 +10,4 @@ dist/
 .vite/
 *.tsbuildinfo
 .DS_Store
+PROJECT_DOCUMENTATION.md
