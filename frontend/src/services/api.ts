@@ -7,13 +7,26 @@ export class ApiError extends Error {
 }
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = localStorage.getItem("qm_token");
+  const headers: Record<string, string> = { "Content-Type": "application/json", ...options.headers as Record<string, string> };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
-    headers: { "Content-Type": "application/json", ...options.headers },
+    headers,
   });
+
+  if (response.status === 401) {
+    localStorage.removeItem("qm_token");
+    window.location.href = "/login";
+    throw new ApiError(401, "Session expired. Please sign in again.");
+  }
+
   if (!response.ok) {
     const payload = await response.json().catch(() => undefined);
-    throw new ApiError(response.status, payload?.error?.message ?? "Request failed.");
+    throw new ApiError(response.status, payload?.detail ?? payload?.error?.message ?? "Request failed.");
   }
   return response.json() as Promise<T>;
 }

@@ -21,6 +21,7 @@ class DatabaseConnection(Base):
     __tablename__ = "database_connections"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     host: Mapped[str] = mapped_column(String(255), nullable=False)
     port: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -33,8 +34,13 @@ class DatabaseConnection(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
+    user: Mapped[Optional["User"]] = relationship(back_populates="database_connections")
     conversations: Mapped[list["Conversation"]] = relationship(back_populates="database_connection", cascade="all, delete-orphan")
     schemas: Mapped[list["DatabaseSchema"]] = relationship(back_populates="database_connection", cascade="all, delete-orphan")
+
+    @property
+    def is_shared(self) -> bool:
+        return self.user_id is None
 
 
 class DatabaseSchema(Base):
@@ -103,6 +109,7 @@ class Conversation(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     database_connection_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("database_connections.id"), nullable=False)
+    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     original_query: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     current_intent: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
@@ -110,6 +117,7 @@ class Conversation(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
+    user: Mapped[Optional["User"]] = relationship(back_populates="conversations")
     database_connection: Mapped[DatabaseConnection] = relationship(back_populates="conversations")
     messages: Mapped[list["Message"]] = relationship(back_populates="conversation", cascade="all, delete-orphan")
     query_executions: Mapped[list["QueryExecution"]] = relationship(back_populates="conversation", cascade="all, delete-orphan")

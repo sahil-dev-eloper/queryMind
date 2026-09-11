@@ -28,6 +28,7 @@ class DatabaseConnectionResponse(BaseModel):
     updated_at: datetime
     last_tested_at: datetime | None
     connection_status: str
+    is_shared: bool = False
 
 
 class ConnectionTestResponse(BaseModel):

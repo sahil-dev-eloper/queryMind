@@ -3,10 +3,13 @@ import { BrowserRouter } from "react-router-dom";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { AuthProvider } from "./contexts/AuthContext";
 import "./styles.css";
 import "./database.css";
 import "./phase5.css";
+import "./conversations.css";
+import "./auth.css";
 
 const queryClient = new QueryClient();
 
-createRoot(document.getElementById("root")!).render(<StrictMode><QueryClientProvider client={queryClient}><BrowserRouter><App /></BrowserRouter></QueryClientProvider></StrictMode>);
+createRoot(document.getElementById("root")!).render(<StrictMode><QueryClientProvider client={queryClient}><BrowserRouter><AuthProvider><App /></AuthProvider></BrowserRouter></QueryClientProvider></StrictMode>);

@@ -26,8 +26,8 @@ class QueryPipelineError(Exception):
 
 
 class QueryPipeline:
-    async def run(self, db: Session, connection: DatabaseConnection, query: str) -> dict:
-        conversation = Conversation(database_connection_id=connection.id, title=query[:255], original_query=query, current_state=ConversationState.ANALYZING.value)
+    async def run(self, db: Session, connection: DatabaseConnection, query: str, user_id=None) -> dict:
+        conversation = Conversation(database_connection_id=connection.id, user_id=user_id, title=query[:255], original_query=query, current_state=ConversationState.ANALYZING.value)
         db.add(conversation)
         db.flush()
         db.add(Message(conversation_id=conversation.id, role="user", content=query))
